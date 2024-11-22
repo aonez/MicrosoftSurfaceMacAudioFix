@@ -1,0 +1,55 @@
+#!/bin/bash
+
+cd "$(dirname "$0")" || {
+	echo "Error: Failed to change to the script directory."
+	exit 1
+}
+
+scriptSource="microsoftsurfaceaudiofix"
+plistSource="com.aone.MicrosoftSurfaceAudioFix.plist"
+
+scriptTarget="/usr/local/bin"
+plistTarget="/Library/LaunchDaemons"
+
+if [ ! -f "$scriptSource" ]; then
+	echo "Error: Script file '$scriptSource' not found!"
+	exit 1
+fi
+
+if [ ! -f "$plistSource" ]; then
+	echo "Error: Plist file '$plistSource' not found!"
+	exit 1
+fi
+
+echo "Installing script $scriptSource to $scriptTarget..."
+sudo cp "$scriptSource" "$scriptTarget"
+#sudo chmod 755 "${scriptTarget}/${scriptSource}"
+echo "Script installed successfully."
+
+echo "Installing plist $plistSource to $plistTarget..."
+sudo cp "$plistSource" "$plistTarget"
+#sudo chmod 644 "${plistTarget}/${plistSource}"
+echo "Plist installed successfully."
+
+if sudo launchctl list | grep -q "com.aone.microsoft-surface-thunderbolt-audio-fix"; then
+	echo "Unloading the running launch daemon..."
+	sudo launchctl bootout system "${plistTarget}/${plistSource}"
+	if [ $? -eq 0 ]; then
+		echo "Daemon unloaded successfully."
+	else
+		echo "Warning: Failed to unload the daemon."
+	fi
+else
+	echo "No running daemon found. Skipping unload."
+fi
+
+echo "Loading the launch daemon..."
+sudo launchctl bootstrap system "${plistTarget}/${plistSource}"
+
+if [ $? -ne 0 ]; then
+	echo "Error: Failed to load the launch daemon."
+	exit 1
+fi
+
+echo "Launch daemon loaded successfully."
+echo "Installation complete!"

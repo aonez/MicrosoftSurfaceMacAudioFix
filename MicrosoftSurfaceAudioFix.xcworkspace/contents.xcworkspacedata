@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:LICENSE">
+   </FileRef>
+   <FileRef
+      location = "group:README.md">
+   </FileRef>
+   <Group
+      location = "group:Daemon"
+      name = "Daemon">
+      <FileRef
+         location = "group:com.aone.MicrosoftSurfaceAudioFix.plist">
+      </FileRef>
+      <FileRef
+         location = "group:install">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "group:MicrosoftSurfaceAudioFix/MicrosoftSurfaceAudioFix.xcodeproj">
+   </FileRef>
+</Workspace>

@@ -34,7 +34,6 @@ void registerSleepAndWakeNotifications(void) {
 																	object:nil
 																	 queue:[NSOperationQueue mainQueue]
 																usingBlock:^(NSNotification * note) {
-			logMessage(@"Mac is going to sleep");
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				if (onSleepCallback) {
 					onSleepCallback();
@@ -48,7 +47,6 @@ void registerSleepAndWakeNotifications(void) {
 																	object:nil
 																	 queue:[NSOperationQueue mainQueue]
 																usingBlock:^(NSNotification * note) {
-			logMessage(@"Mac has woken up");
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 				if (onWakeCallback) {
 					onWakeCallback();

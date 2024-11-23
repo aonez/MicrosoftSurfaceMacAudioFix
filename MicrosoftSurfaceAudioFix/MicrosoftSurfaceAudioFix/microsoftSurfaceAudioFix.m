@@ -23,6 +23,8 @@ int fixSafeTime = 5;
 BOOL applyingFixSafeTime = false;
 BOOL forcedFixByTimeout = false;
 
+BOOL shouldBeSleeping = false;
+
 BOOL isThunderboltDeviceConnected(void) {
 	@autoreleasepool {
 		NSPipe * pipe = [NSPipe pipe];
@@ -118,8 +120,12 @@ BOOL checkMicrosoftSurfaceAudioDevice(void) {
 */
 
 void checkAndFixMicrosoftSurfaceAudioDevice(void) {
+	if (shouldBeSleeping) {
+		logMessage(@"Ignoring check and fix, should be sleeping");
+		return;
+	}
 	if (applyingFixSafeTime) {
-		logMessage(@"Ignoring device change, just executed the fix");
+		logMessage(@"Ignoring check and fix, just executed the fix");
 		return;
 	}
 	
@@ -152,12 +158,19 @@ void onAudioDevicesChange(void) {
 }
 
 void onWake(void) {
+	shouldBeSleeping = false;
+	logMessage(@"Mac has woken up");
 	checkAndFixMicrosoftSurfaceAudioDevice();
 }
 
+void onSleep(void) {
+	shouldBeSleeping = true;
+	logMessage(@"Mac is going to sleep");
+}
 
 
 BOOL trackAndFixMicrosoftSurfaceAudio(void) {
+	setOnSleepCallback(onSleep);
 	setOnWakeCallback(onWake);
 	registerSleepAndWakeNotifications();
 	

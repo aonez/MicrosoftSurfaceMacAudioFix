@@ -6,7 +6,8 @@ cd "$(dirname "$0")" || {
 }
 
 scriptSource="microsoftsurfaceaudiofix"
-plistSource="com.aone.MicrosoftSurfaceAudioFix.plist"
+daemonName="com.aone.MicrosoftSurfaceAudioFix"
+plistSource="${daemonName}.plist"
 
 scriptTarget="/usr/local/bin"
 plistTarget="/Library/LaunchDaemons"
@@ -31,7 +32,7 @@ sudo cp "$plistSource" "$plistTarget"
 #sudo chmod 644 "${plistTarget}/${plistSource}"
 echo "Plist installed successfully."
 
-if sudo launchctl list | grep -q "com.aone.microsoft-surface-thunderbolt-audio-fix"; then
+if sudo launchctl list | grep -q "${daemonName}"; then
 	echo "Unloading the running launch daemon..."
 	sudo launchctl bootout system "${plistTarget}/${plistSource}"
 	if [ $? -eq 0 ]; then

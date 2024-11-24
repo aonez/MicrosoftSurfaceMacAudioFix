@@ -124,7 +124,6 @@ void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 	if (checking) {
 		logMessage(@"Skipping check (already checking)");
 	}
-	logMessage(@"Checking...");
 	checking = true;
 	
 	if (applyingFixSafeTime) {
@@ -158,7 +157,6 @@ void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 		logMessage([NSString stringWithFormat:@"Device  \"%@\" not present", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME]);
 	}
 	checking = false;
-	logMessage(@"Check done");
 }
 
 void onAudioDevicesChange(void) {

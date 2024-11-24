@@ -84,6 +84,10 @@ void restartVolumeApp(void) {
 }
 
 void fixMicrosoftSurfaceAudio(void) {
+	if (shouldBeSleeping) {
+		logMessage(@"Skipping fix (should be sleeping)");
+		return;
+	}
 	applyingFixSafeTime = true;
 	
 	restartCoreAudio();
@@ -160,6 +164,10 @@ void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 }
 
 void onAudioDevicesChange(void) {
+	if (shouldBeSleeping) {
+		logMessage(@"Ignoring audio devices change (should be sleeping)");
+		return;
+	}
 	if (checking) {
 		logMessage(@"Ignoring audio devices change (already checking)");
 		return;

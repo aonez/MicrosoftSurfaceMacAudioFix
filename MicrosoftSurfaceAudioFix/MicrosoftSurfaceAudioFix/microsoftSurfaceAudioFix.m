@@ -19,9 +19,10 @@
 
 BOOL skipMicrosoftSurfaceAudioFix = false;
 
-int fixSafeTime = 5;
+int fixSafeTime = 10;
 BOOL applyingFixSafeTime = false;
 BOOL forcedFixByTimeout = false;
+BOOL checking = false;
 
 BOOL shouldBeSleeping = false;
 
@@ -120,12 +121,14 @@ BOOL checkMicrosoftSurfaceAudioDevice(void) {
 */
 
 void checkAndFixMicrosoftSurfaceAudioDevice(void) {
-	if (shouldBeSleeping) {
-		logMessage(@"Ignoring check and fix, should be sleeping");
-		return;
+	if (checking) {
+		logMessage(@"Skipping check (already checking)");
 	}
+	logMessage(@"Checking...");
+	checking = true;
+	
 	if (applyingFixSafeTime) {
-		logMessage(@"Ignoring check and fix, just executed the fix");
+		logMessage([NSString stringWithFormat:@"Skipping check (fix exectuted less than %i seconds before)", fixSafeTime]);
 		return;
 	}
 	
@@ -148,12 +151,26 @@ void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 	*/
 	
 	if (isThunderboltDeviceConnected()) {
-		logMessage([NSString stringWithFormat:@"%@ detected", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME]);
+		logMessage([NSString stringWithFormat:@"Device \"%@\" detected", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME]);
 		fixMicrosoftSurfaceAudio();
 	}
+	else {
+		logMessage([NSString stringWithFormat:@"Device  \"%@\" not present", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME]);
+	}
+	checking = false;
+	logMessage(@"Check done");
 }
 
 void onAudioDevicesChange(void) {
+	if (checking) {
+		logMessage(@"Ignoring audio devices change (already checking)");
+		return;
+	}
+	if (applyingFixSafeTime) {
+		logMessage([NSString stringWithFormat:@"Ignoring audio devices change (fix executed less than %i seconds before)", fixSafeTime]);
+		return;
+	}
+	logMessage(@"Audio devices changed");
 	checkAndFixMicrosoftSurfaceAudioDevice();
 }
 
@@ -168,7 +185,6 @@ void onSleep(void) {
 	logMessage(@"Mac is going to sleep");
 }
 
-
 BOOL trackAndFixMicrosoftSurfaceAudio(void) {
 	setOnSleepCallback(onSleep);
 	setOnWakeCallback(onWake);
@@ -181,4 +197,3 @@ BOOL trackAndFixMicrosoftSurfaceAudio(void) {
 
 	return true;
 }
-

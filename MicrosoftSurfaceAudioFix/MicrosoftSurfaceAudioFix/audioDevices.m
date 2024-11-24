@@ -127,9 +127,7 @@ void setAudioDevicesChangedCallback(AudioDevicesChangedCallback callback) {
 OSStatus _AudioDevicesChangedCallback(AudioObjectID objectID,
 									  UInt32 numberAddresses,
 									  const AudioObjectPropertyAddress addresses[],
-									  void *clientData) {
-	logMessage(@"Audio devices changed");
-	
+									  void *clientData) {	
 	if (audioDevicesChangedCallback) {
 		audioDevicesChangedCallback();
 	}

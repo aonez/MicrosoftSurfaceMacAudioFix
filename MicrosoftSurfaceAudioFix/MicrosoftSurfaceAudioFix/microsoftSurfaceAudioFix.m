@@ -121,7 +121,8 @@ void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 
 void onAudioDevicesChange(void) {
 	if (shouldBeSleeping) {
-		logMessage(@"Ignoring audio devices change (should be sleeping)");
+		// Too much darkwake events, dismiss this log
+		// logMessage(@"Ignoring audio devices change (should be sleeping)");
 		return;
 	}
 	if (checking) {

@@ -19,12 +19,15 @@
 
 BOOL skipMicrosoftSurfaceAudioFix = false;
 
+BOOL microsoftSurfaceDockConnected = false;
+BOOL microsoftSurfaceDockWasAlreadyConnected = false;
+
+BOOL shouldBeSleeping = false;
+
 int fixSafeTime = 10;
 BOOL applyingFixSafeTime = false;
 BOOL forcedFixByTimeout = false;
 BOOL checking = false;
-
-BOOL shouldBeSleeping = false;
 
 BOOL isThunderboltDeviceConnected(void) {
 	@autoreleasepool {
@@ -41,7 +44,10 @@ BOOL isThunderboltDeviceConnected(void) {
 		NSData * data = [file readDataToEndOfFile];
 		NSString * output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 		
-		return [output containsString:MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME];
+		microsoftSurfaceDockConnected = [output containsString:MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME];
+		logMessage([NSString stringWithFormat:@"Device \"%@\" %@", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME, microsoftSurfaceDockConnected ? @"detected" : @"not present"]);
+		
+		return microsoftSurfaceDockConnected;
 	}
 }
 
@@ -88,6 +94,10 @@ void fixMicrosoftSurfaceAudio(void) {
 		logMessage(@"Skipping fix (should be sleeping)");
 		return;
 	}
+	if (microsoftSurfaceDockWasAlreadyConnected) {
+		logMessage(@"Skipping fix (device was already connected)");
+		return;
+	}
 	applyingFixSafeTime = true;
 	
 	restartCoreAudio();
@@ -101,21 +111,20 @@ void fixMicrosoftSurfaceAudio(void) {
 void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 	if (checking) {
 		logMessage(@"Skipping check (already checking)");
+		return;
 	}
 	checking = true;
 	
 	if (applyingFixSafeTime) {
 		logMessage([NSString stringWithFormat:@"Skipping check (fix exectuted less than %i seconds before)", fixSafeTime]);
+		checking = false;
 		return;
 	}
 	
 	if (isThunderboltDeviceConnected()) {
-		logMessage([NSString stringWithFormat:@"Device \"%@\" detected", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME]);
 		fixMicrosoftSurfaceAudio();
 	}
-	else {
-		logMessage([NSString stringWithFormat:@"Device  \"%@\" not present", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME]);
-	}
+	microsoftSurfaceDockWasAlreadyConnected = microsoftSurfaceDockConnected;
 	checking = false;
 }
 
@@ -145,6 +154,7 @@ void onWake(void) {
 
 void onSleep(void) {
 	shouldBeSleeping = true;
+	microsoftSurfaceDockWasAlreadyConnected = false; // Force fix upon wake
 	logMessage(@"Mac is going to sleep");
 }
 

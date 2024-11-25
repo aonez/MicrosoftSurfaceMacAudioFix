@@ -98,32 +98,6 @@ void fixMicrosoftSurfaceAudio(void) {
 	});
 }
 
-/*
-BOOL checkMicrosoftSurfaceAudioDevice(void) {
-	@autoreleasepool {
-		logMessage([NSString stringWithFormat:@"Checking for audio device %s...", MICROSOFT_SURFACE_THUNDERBOLT_AUDIO_DEVICE_NAME]);
-		NSMutableArray<NSNumber *> * audioDeviceIDs;
-		CFStringRef audioDeviceName = CFStringCreateWithCString(NULL, MICROSOFT_SURFACE_THUNDERBOLT_AUDIO_DEVICE_NAME, kCFStringEncodingUTF8);
-		
-		if (checkAudioDeviceExists(audioDeviceName, &audioDeviceIDs)) {
-			for (NSNumber * audioDeviceID in audioDeviceIDs) {
-				if (checkAudioDeviceHasAvailableFormats(audioDeviceID.unsignedIntValue, audioDeviceName)) {
-					// Some formats found, all ok
-					logMessage(@"Seems to work properly :)");
-					return true;
-				}
-			}
-			// No formats available, needs fix
-			logMessage(@"No formats available :(");
-			return false;
-		}
-		logMessage(@"Not found :|");
-		// If it's not present, all ok
-		return true;
-	}
-}
-*/
-
 void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 	if (checking) {
 		logMessage(@"Skipping check (already checking)");
@@ -134,24 +108,6 @@ void checkAndFixMicrosoftSurfaceAudioDevice(void) {
 		logMessage([NSString stringWithFormat:@"Skipping check (fix exectuted less than %i seconds before)", fixSafeTime]);
 		return;
 	}
-	
-	/*
-	// Checking audio devices is more precisse
-	// but can produce a one minute hang when the fix was needed.
-	// Using thunderbolt detection instead.
-	//
-	if (!checkMicrosoftSurfaceAudioDevice()) {
-		if (forcedFixByTimeout) {
-			logMessage(@"Not fixing again");
-			return;
-		}
-		fixMicrosoftSurfaceAudio();
-	}
-	if (forcedFixByTimeout) {
-		forcedFixByTimeout = false;
-		logMessage(@"Audio was hanging before");
-	}
-	*/
 	
 	if (isThunderboltDeviceConnected()) {
 		logMessage([NSString stringWithFormat:@"Device \"%@\" detected", MICROSOFT_SURFACE_THUNDERBOLT_DEVICE_NAME]);

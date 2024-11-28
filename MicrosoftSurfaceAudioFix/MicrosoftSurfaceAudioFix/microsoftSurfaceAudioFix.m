@@ -100,11 +100,16 @@ void fixMicrosoftSurfaceAudio(void) {
 	}
 	applyingFixSafeTime = true;
 	
-	restartCoreAudio();
-	restartVolumeApp();
-	
+	logMessage([NSString stringWithFormat:@"Applying fix in %i seconds...", fixSafeTime]);
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(fixSafeTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-		applyingFixSafeTime = false;
+		
+		restartCoreAudio();
+		restartVolumeApp();
+		
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(fixSafeTime * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			applyingFixSafeTime = false;
+			logMessage(@"Fix completed");
+		});
 	});
 }
 
